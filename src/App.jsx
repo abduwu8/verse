@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import GifGallery from './GifGallery.jsx'
 
 const avatars = [
   {
@@ -189,12 +191,12 @@ export default function App() {
   }, [expanded])
 
   return (
-    <div className="relative h-dvh w-full max-w-[100vw] bg-background overflow-hidden font-sans select-none">
+    <div className="relative min-h-dvh w-full max-w-[100vw] bg-background font-sans select-none">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
             key="splash"
-            className="absolute inset-0 z-50 flex items-center justify-center bg-background"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -211,30 +213,113 @@ export default function App() {
             />
           </motion.div>
         ) : (
+          <Routes>
+            <Route path="/gifs" element={<GifGallery />} />
+            <Route
+              path="/*"
+              element={
           <motion.div
             key="app"
-            className="h-full w-full flex flex-col items-center
-                       justify-start sm:justify-center
-                       gap-0 sm:gap-3
-                       px-2 sm:px-4
-                       pt-[max(0.25rem,env(safe-area-inset-top))]
-                       pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+            className="w-full flex flex-col items-center"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-      {/* Logo — bigger on mobile, balanced on desktop */}
+      {/* —— Mobile hero: logo absolute top, carousel truly centered —— */}
+      <section className="sm:hidden hero-mobile flex flex-col items-center justify-center px-2">
+        <div className="hero-mobile-logo">
+          <img
+            src="/modilog.png"
+            alt="Modiverse"
+            className="h-28 w-auto object-contain"
+            draggable={false}
+          />
+        </div>
+
+        <div
+          className="flex flex-col items-center w-full"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <div className="avatar-slot shrink-0">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={openExpanded}
+                aria-label={`View ${current.title} larger`}
+                className="avatar-frame touch-pan-y cursor-zoom-in
+                           border-2 border-border rounded-base
+                           bg-secondary-background p-0 block"
+              >
+                <img
+                  src={current.src}
+                  alt={current.title}
+                  draggable={false}
+                  className="avatar-img pointer-events-none"
+                />
+              </button>
+
+              <button
+                type="button"
+                onClick={prev}
+                aria-label="Previous avatar"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10
+                           size-9 rounded-full bg-white/95 border-2 border-border
+                           flex items-center justify-center touch-manipulation
+                           active:scale-95 shadow-sm"
+              >
+                <Chevron dir="left" />
+              </button>
+              <button
+                type="button"
+                onClick={next}
+                aria-label="Next avatar"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10
+                           size-9 rounded-full bg-white/95 border-2 border-border
+                           flex items-center justify-center touch-manipulation
+                           active:scale-95 shadow-sm"
+              >
+                <Chevron dir="right" />
+              </button>
+            </div>
+          </div>
+
+          <div className="shrink-0 w-full max-w-sm px-3 pt-2.5 flex flex-col items-center">
+            <div
+              className="w-full min-w-0 overflow-hidden
+                         bg-secondary-background border-2 border-border rounded-base shadow-shadow
+                         flex flex-col"
+            >
+              <div className="bg-main text-main-foreground border-b-2 border-border px-3 py-1.5 flex items-center justify-center">
+                <h2 className="text-sm font-bold tracking-tight m-0">
+                  {current.title}
+                </h2>
+              </div>
+              <p className="desc-box w-full min-w-0 px-2.5 py-1.5 font-medium text-neutral-700 m-0">
+                {current.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* —— Desktop hero —— */}
+      <section
+        className="hidden sm:flex flex-col items-center justify-center w-full min-h-dvh
+                   gap-3 px-4
+                   pt-[max(0.5rem,env(safe-area-inset-top))]
+                   pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+      >
       <div className="shrink-0 flex items-center justify-center">
         <img
           src="/modilog.png"
           alt="Modiverse"
-          className="h-32 sm:h-24 md:h-28 w-auto object-contain"
+          className="h-24 md:h-28 w-auto object-contain"
           draggable={false}
         />
       </div>
 
-      {/* —— Desktop row: side arrows + image —— */}
-      <div className="hidden sm:flex items-center gap-5 w-full max-w-4xl justify-center min-h-0 flex-1">
+      <div className="flex items-center gap-5 w-full max-w-4xl justify-center min-h-0">
         <NeoButton
           onClick={prev}
           aria-label="Previous avatar"
@@ -292,73 +377,17 @@ export default function App() {
           <Chevron dir="right" />
         </NeoButton>
       </div>
+      </section>
 
-      {/* —— Mobile: fixed image size, fixed footer —— */}
-      <div
-        className="sm:hidden flex flex-col items-center w-full min-h-0 flex-1"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        <div className="avatar-slot shrink-0">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={openExpanded}
-              aria-label={`View ${current.title} larger`}
-              className="avatar-frame touch-pan-y cursor-zoom-in
-                         border-2 border-border rounded-base
-                         bg-secondary-background p-0 block"
-            >
-              <img
-                src={current.src}
-                alt={current.title}
-                draggable={false}
-                className="avatar-img pointer-events-none"
-              />
-            </button>
-
-            <button
-              type="button"
-              onClick={prev}
-              aria-label="Previous avatar"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10
-                         size-9 rounded-full bg-white/95 border-2 border-border
-                         flex items-center justify-center touch-manipulation
-                         active:scale-95 shadow-sm"
-            >
-              <Chevron dir="left" />
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              aria-label="Next avatar"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10
-                         size-9 rounded-full bg-white/95 border-2 border-border
-                         flex items-center justify-center touch-manipulation
-                         active:scale-95 shadow-sm"
-            >
-              <Chevron dir="right" />
-            </button>
-          </div>
-        </div>
-
-        {/* Fixed-height footer: info card only */}
-        <div className="shrink-0 w-full max-w-sm px-3 pt-2 pb-2 flex flex-col items-center bg-background">
-          <div
-            className="w-full min-w-0 overflow-hidden
-                       bg-secondary-background border-2 border-border rounded-base shadow-shadow
-                       flex flex-col"
-          >
-            <div className="bg-main text-main-foreground border-b-2 border-border px-3 py-1.5 flex items-center justify-center">
-              <h2 className="text-sm font-bold tracking-tight m-0">
-                {current.title}
-              </h2>
-            </div>
-            <p className="desc-box w-full min-w-0 px-2.5 py-1.5 font-medium text-neutral-700 m-0">
-              {current.description}
-            </p>
-          </div>
-        </div>
+      {/* Link to GIFs page */}
+      <div className="shrink-0 w-full flex justify-center py-4 sm:py-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        <Link
+          to="/gifs"
+          className="text-base sm:text-lg font-bold text-main underline underline-offset-4
+                     decoration-2 hover:opacity-80 active:opacity-70 transition-opacity"
+        >
+          Modi GIFs
+        </Link>
       </div>
 
       {expanded && (
@@ -425,6 +454,9 @@ export default function App() {
         </div>
       )}
           </motion.div>
+              }
+            />
+          </Routes>
         )}
       </AnimatePresence>
     </div>
