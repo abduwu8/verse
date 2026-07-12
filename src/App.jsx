@@ -1,0 +1,449 @@
+import { useState, useRef, useEffect } from 'react'
+
+const avatars = [
+  {
+    src: '/images/alien.jpg',
+    title: 'Alien',
+    description: 'Turned the country into Area 51',
+  },
+  {
+    src: '/images/beggar.jpg',
+    title: 'Beggar',
+    description: 'Made the entire country beg',
+  },
+  {
+    src: '/images/bollywood.jpg',
+    title: 'Bollywood',
+    description: 'Acting like a hero while the nation suffers',
+  },
+  {
+    src: '/images/clown.jpg',
+    title: 'Clown',
+    description: "Running the world's biggest circus",
+  },
+  {
+    src: '/images/cricketer.jpg',
+    title: 'Cricketer',
+    description: 'Master of duck outs and economic zeros',
+  },
+  {
+    src: '/images/footballer.jpg',
+    title: 'Footballer',
+    description: 'Specialist in scoring own goals',
+  },
+  {
+    src: '/images/jail.jpg',
+    title: 'Jail',
+    description: 'Locked up democracy and dissent',
+  },
+  {
+    src: '/images/king.jpg',
+    title: 'King',
+    description: 'Emperor with no clothes',
+  },
+  {
+    src: '/images/ninja.jpg',
+    title: 'Ninja',
+    description: 'Stealth assassin of institutions',
+  },
+  {
+    src: '/images/pilot.jpg',
+    title: 'Pilot',
+    description: 'Crashing the economy in style',
+  },
+  {
+    src: '/images/rapper.jpg',
+    title: 'Rapper',
+    description: 'Dropping broken promises bars',
+  },
+  {
+    src: '/images/shiekh.jpg',
+    title: 'Sheikh',
+    description: "Oiling Adani's private jets",
+  },
+  {
+    src: '/images/superhero.jpg',
+    title: 'Superhero',
+    description: 'Saving himself, not the people',
+  },
+  {
+    src: '/images/demon.jpg',
+    title: 'Demon',
+    description: 'Possessed Indian democracy',
+  },
+]
+
+const SWIPE_THRESHOLD = 40
+
+function NeoButton({ children, className = '', ...props }) {
+  return (
+    <button
+      type="button"
+      className={`inline-flex items-center justify-center whitespace-nowrap
+        rounded-base text-sm font-base transition-all
+        bg-secondary-background text-foreground
+        border-2 border-border shadow-shadow
+        hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none
+        active:translate-x-boxShadowX active:translate-y-boxShadowY active:shadow-none
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2
+        touch-manipulation
+        ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Chevron({ dir }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-5 h-5 sm:w-6 sm:h-6"
+    >
+      {dir === 'left' ? (
+        <path d="M15 18l-6-6 6-6" />
+      ) : (
+        <path d="M9 18l6-6-6-6" />
+      )}
+    </svg>
+  )
+}
+
+export default function App() {
+  const [index, setIndex] = useState(0)
+  const [expanded, setExpanded] = useState(false)
+  const current = avatars[index]
+  const touchStartX = useRef(null)
+  const touchStartY = useRef(null)
+  const didSwipe = useRef(false)
+
+  const prev = () => {
+    setIndex((i) => (i === 0 ? avatars.length - 1 : i - 1))
+  }
+
+  const next = () => {
+    setIndex((i) => (i === avatars.length - 1 ? 0 : i + 1))
+  }
+
+  const onTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+    didSwipe.current = false
+  }
+
+  const onTouchEnd = (e) => {
+    if (touchStartX.current == null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    touchStartX.current = null
+    touchStartY.current = null
+
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return
+    didSwipe.current = true
+    if (dx < 0) next()
+    else prev()
+  }
+
+  const openExpanded = () => {
+    if (didSwipe.current) return
+    setExpanded(true)
+  }
+
+  useEffect(() => {
+    if (!expanded) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') setExpanded(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [expanded])
+
+  return (
+    <div
+      className="h-dvh w-full max-w-[100vw] bg-background flex flex-col items-center
+                 justify-start sm:justify-center
+                 gap-0 sm:gap-3
+                 px-2 sm:px-4
+                 pt-[max(0.25rem,env(safe-area-inset-top))]
+                 pb-[max(0.5rem,env(safe-area-inset-bottom))]
+                 overflow-hidden font-sans select-none"
+    >
+      {/* Logo — bigger on mobile, balanced on desktop */}
+      <div className="shrink-0 flex items-center justify-center">
+        <img
+          src="/modilog.png"
+          alt="Modiverse"
+          className="h-32 sm:h-24 md:h-28 w-auto object-contain"
+          draggable={false}
+        />
+      </div>
+
+      {/* —— Desktop row: side arrows + image —— */}
+      <div className="hidden sm:flex items-center gap-5 w-full max-w-4xl justify-center min-h-0 flex-1">
+        <NeoButton
+          onClick={prev}
+          aria-label="Previous avatar"
+          className="shrink-0 size-12"
+        >
+          <Chevron dir="left" />
+        </NeoButton>
+
+        <div
+          className="relative flex-1 min-w-0 max-w-xl min-h-0 h-full flex flex-col items-center justify-center"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <div className="avatar-slot relative min-h-0 flex-1 w-full">
+            <button
+              type="button"
+              onClick={openExpanded}
+              aria-label={`View ${current.title} larger`}
+              className="avatar-frame touch-pan-y cursor-zoom-in
+                         border-2 border-border rounded-base
+                         bg-secondary-background shadow-shadow p-0 block"
+            >
+              <img
+                src={current.src}
+                alt={current.title}
+                draggable={false}
+                className="avatar-img pointer-events-none"
+              />
+            </button>
+          </div>
+
+          <div className="shrink-0 mt-3 flex flex-col items-center gap-2 max-w-md w-full px-2">
+            <div
+              className="px-4 py-1
+                         bg-main text-main-foreground
+                         border-2 border-border rounded-base shadow-shadow
+                         text-base font-bold tracking-tight"
+            >
+              {current.title}
+            </div>
+            <p
+              className="w-full px-3 py-2
+                         bg-secondary-background text-foreground
+                         border-2 border-border rounded-base shadow-shadow
+                         text-sm text-center leading-snug font-medium"
+            >
+              {current.description}
+            </p>
+          </div>
+
+          <div className="shrink-0 mt-3 flex justify-center items-center gap-2 flex-wrap max-w-full px-1">
+            {avatars.map((avatar, i) => (
+              <button
+                key={avatar.src}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Go to ${avatar.title}`}
+                aria-current={i === index ? 'true' : undefined}
+                className="touch-manipulation p-1"
+              >
+                <span
+                  className={`block h-2.5 rounded-base border-2 border-border ${
+                    i === index
+                      ? 'w-6 bg-main'
+                      : 'w-2.5 bg-secondary-background hover:bg-main/30'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <NeoButton
+          onClick={next}
+          aria-label="Next avatar"
+          className="shrink-0 size-12"
+        >
+          <Chevron dir="right" />
+        </NeoButton>
+      </div>
+
+      {/* Counter desktop */}
+      <p
+        className="hidden sm:block shrink-0 text-sm font-base tabular-nums
+                   px-3 py-1 bg-secondary-background
+                   border-2 border-border rounded-base shadow-shadow"
+      >
+        {index + 1} / {avatars.length}
+      </p>
+
+      {/* —— Mobile: full-width image, overlay arrows, clean footer —— */}
+      <div
+        className="sm:hidden flex flex-col items-center w-full min-h-0 flex-1"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <div className="avatar-slot relative min-h-0 flex-1 w-full">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={openExpanded}
+              aria-label={`View ${current.title} larger`}
+              className="avatar-frame touch-pan-y cursor-zoom-in
+                         border-2 border-border rounded-base
+                         bg-secondary-background p-0 block"
+            >
+              <img
+                src={current.src}
+                alt={current.title}
+                draggable={false}
+                className="avatar-img pointer-events-none"
+              />
+            </button>
+
+            {/* Overlay arrows on the photo — full width for image */}
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Previous avatar"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10
+                         size-9 rounded-full bg-white/95 border-2 border-border
+                         flex items-center justify-center touch-manipulation
+                         active:scale-95 shadow-sm"
+            >
+              <Chevron dir="left" />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next avatar"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10
+                         size-9 rounded-full bg-white/95 border-2 border-border
+                         flex items-center justify-center touch-manipulation
+                         active:scale-95 shadow-sm"
+            >
+              <Chevron dir="right" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile chrome — neo title + description */}
+        <div className="shrink-0 w-full max-w-sm px-3 pt-2 pb-2 flex flex-col items-center gap-2 bg-background">
+          <div className="flex items-center justify-center gap-2">
+            <span
+              className="px-3 py-1
+                         bg-main text-main-foreground
+                         border-2 border-border rounded-base shadow-shadow
+                         text-sm font-bold tracking-tight"
+            >
+              {current.title}
+            </span>
+            <span
+              className="px-2 py-1 text-xs tabular-nums font-medium
+                         bg-secondary-background text-foreground
+                         border-2 border-border rounded-base shadow-shadow"
+            >
+              {index + 1}/{avatars.length}
+            </span>
+          </div>
+          <p
+            className="w-full px-3 py-2
+                       bg-secondary-background text-foreground
+                       border-2 border-border rounded-base shadow-shadow
+                       text-sm text-center leading-snug font-medium"
+          >
+            {current.description}
+          </p>
+
+          <div className="flex justify-center items-center gap-1.5">
+            {avatars.map((avatar, i) => (
+              <button
+                key={avatar.src}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Go to ${avatar.title}`}
+                aria-current={i === index ? 'true' : undefined}
+                className="touch-manipulation p-1"
+              >
+                <span
+                  className={`block rounded-full transition-none ${
+                    i === index
+                      ? 'h-1.5 w-5 bg-main'
+                      : 'h-1.5 w-1.5 bg-neutral-300'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {expanded && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center
+                     bg-black/70 p-3 sm:p-6
+                     pt-[max(0.75rem,env(safe-area-inset-top))]
+                     pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+          onClick={() => setExpanded(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${current.title} enlarged`}
+        >
+          <div
+            className="relative flex flex-col items-center gap-3 max-h-full max-w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="lightbox-frame border-2 border-border rounded-base
+                         bg-secondary-background shadow-shadow overflow-hidden"
+            >
+              <img
+                src={current.src}
+                alt={current.title}
+                draggable={false}
+                className="lightbox-img"
+              />
+            </div>
+
+            <div className="flex flex-col items-center gap-2 max-w-sm w-full px-2">
+              <div
+                className="px-4 py-1.5 bg-main text-main-foreground
+                           border-2 border-border rounded-base shadow-shadow
+                           text-base font-bold tracking-tight"
+              >
+                {current.title}
+              </div>
+              <p
+                className="w-full px-3 py-2
+                           bg-secondary-background text-foreground
+                           border-2 border-border rounded-base shadow-shadow
+                           text-sm text-center leading-snug font-medium"
+              >
+                {current.description}
+              </p>
+            </div>
+
+            <NeoButton
+              onClick={() => setExpanded(false)}
+              aria-label="Close"
+              className="size-11"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </NeoButton>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

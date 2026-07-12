@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+/* Neobrutalism tokens — blue & white theme (logo blue) */
+:root {
+  --border-radius: 5px;
+  --box-shadow-x: 4px;
+  --box-shadow-y: 4px;
+  --reverse-box-shadow-x: -4px;
+  --reverse-box-shadow-y: -4px;
+
+  --heading-font-weight: 700;
+  --base-font-weight: 500;
+
+  /* Soft blue-white page bg */
+  --background: oklch(96% 0.02 255);
+  --secondary-background: oklch(100% 0 0);
+  --foreground: oklch(0% 0 0);
+  --main-foreground: oklch(100% 0 0);
+
+  /* Logo blue */
+  --main: oklch(52% 0.2 264);
+  --border: oklch(0% 0 0);
+  --ring: oklch(0% 0 0);
+
+  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+}
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-main: var(--main);
+  --color-background: var(--background);
+  --color-secondary-background: var(--secondary-background);
+  --color-foreground: var(--foreground);
+  --color-main-foreground: var(--main-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --spacing-boxShadowX: var(--box-shadow-x);
+  --spacing-boxShadowY: var(--box-shadow-y);
+  --spacing-reverseBoxShadowX: var(--reverse-box-shadow-x);
+  --spacing-reverseBoxShadowY: var(--reverse-box-shadow-y);
+
+  --radius-base: var(--border-radius);
+
+  --shadow-shadow: var(--shadow);
+
+  --font-weight-base: var(--base-font-weight);
+  --font-weight-heading: var(--heading-font-weight);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-weight: var(--base-font-weight);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/*
+  Largest 3:4 box inside the slot — full photo, no side crop.
+  Image is slightly taller than the frame so only the bottom (watermark) clips.
+*/
+.avatar-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+  width: 100%;
+  min-height: 0;
+}
+
+.avatar-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  /* Prefer filling available height; fall back to width on narrow slots */
+  width: min(100cqw, calc(100cqh * 3 / 4));
+  height: min(100cqh, calc(100cqw * 4 / 3));
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+}
+
+/* Mobile: full-width photo, leave room for title + description + dots */
+@media (max-width: 639px) {
+  .avatar-frame {
+    /* Cap height so footer text is never pushed off-screen */
+    width: min(100cqw, calc((100cqh - 0px) * 3 / 4));
+    height: min(100cqh, calc(100cqw * 4 / 3));
+    max-height: 100%;
+    box-shadow: 3px 3px 0 0 var(--border);
+  }
+}
+
+@supports not (width: 1cqw) {
+  .avatar-frame {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+.avatar-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 112%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Big view — max screen, only bottom cropped */
+.lightbox-frame {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  width: min(92vw, calc(88dvh * 3 / 4));
+  height: min(88dvh, calc(92vw * 4 / 3));
+  max-width: 100%;
+  max-height: min(88dvh, 900px);
+}
+
+.lightbox-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 112%;
+  object-fit: cover;
+  object-position: top center;
+}
+
