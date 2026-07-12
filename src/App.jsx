@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import GifGallery from './GifGallery.jsx'
+import VisitsPage from './VisitsPage.jsx'
 
 const avatars = [
   {
@@ -215,6 +216,7 @@ export default function App() {
         ) : (
           <Routes>
             <Route path="/gifs" element={<GifGallery />} />
+            <Route path="/visits" element={<VisitsPage />} />
             <Route
               path="/*"
               element={
@@ -379,14 +381,24 @@ export default function App() {
       </div>
       </section>
 
-      {/* Link to GIFs page */}
-      <div className="shrink-0 w-full flex justify-center py-4 sm:py-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+      {/* Page links */}
+      <div
+        className="shrink-0 w-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8
+                   py-4 sm:py-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+      >
         <Link
           to="/gifs"
           className="text-base sm:text-lg font-bold text-main underline underline-offset-4
                      decoration-2 hover:opacity-80 active:opacity-70 transition-opacity"
         >
           Modi GIFs
+        </Link>
+        <Link
+          to="/visits"
+          className="text-base sm:text-lg font-bold text-main underline underline-offset-4
+                     decoration-2 hover:opacity-80 active:opacity-70 transition-opacity"
+        >
+          PM Visits
         </Link>
       </div>
 
