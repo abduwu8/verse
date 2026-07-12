@@ -77,6 +77,16 @@ const avatars = [
     title: 'Dictator',
     description: 'Ruling like a dictator while calling it a democracy',
   },
+  {
+    src: '/images/silencer.jpg',
+    title: 'Silencer',
+    description: 'Silencing the voices of the people',
+  },
+  {
+    src: '/images/pookie.jpg',
+    title: 'Pookie',
+    description: 'Cutest p.m of all time',
+  },
 ]
 
 const SWIPE_THRESHOLD = 40
