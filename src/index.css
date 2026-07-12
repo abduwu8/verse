@@ -103,19 +103,35 @@ body,
 /* Mobile: fixed viewport-based size; footer reserved below */
 @media (max-width: 639px) {
   .avatar-frame {
-    --chrome: 16.5rem; /* logo + title + description + dots */
+    --chrome: 15rem; /* logo + info card */
     width: min(96vw, calc((100dvh - var(--chrome)) * 3 / 4));
     height: min(calc(100dvh - var(--chrome)), calc(96vw * 4 / 3));
     box-shadow: 3px 3px 0 0 var(--border);
   }
 }
 
-/* Fixed-height description box so 1-line vs 2-line text doesn't reflow */
+/* Fixed-height description — wraps cleanly, never overflows the card */
 .desc-box {
-  min-height: 3.25rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  line-height: 1.35;
+}
+
+@media (max-width: 639px) {
+  .desc-box {
+    height: 2.5rem;
+    font-size: 0.8125rem; /* 13px — fits longer lines */
+  }
 }
 
 .avatar-img {

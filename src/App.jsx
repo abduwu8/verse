@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const avatars = [
   {
@@ -71,6 +72,11 @@ const avatars = [
     title: 'Demon',
     description: 'Possessed Indian democracy',
   },
+  {
+    src: '/images/dictator.jpg',
+    title: 'Dictator',
+    description: 'Ruling like a dictator while calling it a democracy',
+  },
 ]
 
 const SWIPE_THRESHOLD = 40
@@ -117,12 +123,19 @@ function Chevron({ dir }) {
 }
 
 export default function App() {
+  const [loading, setLoading] = useState(true)
   const [index, setIndex] = useState(0)
   const [expanded, setExpanded] = useState(false)
   const current = avatars[index]
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
   const didSwipe = useRef(false)
+
+  // Splash: logo only for 2s
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 2000)
+    return () => clearTimeout(t)
+  }, [])
 
   const prev = () => {
     setIndex((i) => (i === 0 ? avatars.length - 1 : i - 1))
@@ -166,15 +179,40 @@ export default function App() {
   }, [expanded])
 
   return (
-    <div
-      className="h-dvh w-full max-w-[100vw] bg-background flex flex-col items-center
-                 justify-start sm:justify-center
-                 gap-0 sm:gap-3
-                 px-2 sm:px-4
-                 pt-[max(0.25rem,env(safe-area-inset-top))]
-                 pb-[max(0.5rem,env(safe-area-inset-bottom))]
-                 overflow-hidden font-sans select-none"
-    >
+    <div className="relative h-dvh w-full max-w-[100vw] bg-background overflow-hidden font-sans select-none">
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="splash"
+            className="absolute inset-0 z-50 flex items-center justify-center bg-background"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.img
+              src="/modilog.png"
+              alt="Modiverse"
+              draggable={false}
+              className="w-[min(72vw,18rem)] sm:w-[min(50vw,20rem)] h-auto object-contain"
+              initial={{ opacity: 0, scale: 0.86 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.04 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="app"
+            className="h-full w-full flex flex-col items-center
+                       justify-start sm:justify-center
+                       gap-0 sm:gap-3
+                       px-2 sm:px-4
+                       pt-[max(0.25rem,env(safe-area-inset-top))]
+                       pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
       {/* Logo — bigger on mobile, balanced on desktop */}
       <div className="shrink-0 flex items-center justify-center">
         <img
@@ -219,44 +257,20 @@ export default function App() {
             </button>
           </div>
 
-          <div className="shrink-0 mt-3 flex flex-col items-center gap-2 w-full max-w-[22rem] px-1">
-            <div
-              className="px-4 py-1 h-8 flex items-center
-                         bg-main text-main-foreground
-                         border-2 border-border rounded-base shadow-shadow
-                         text-base font-bold tracking-tight"
-            >
-              {current.title}
+          {/* Single neo card: blue header + description body */}
+          <div
+            className="shrink-0 mt-3 w-full max-w-[22rem] min-w-0 overflow-hidden
+                       bg-secondary-background border-2 border-border rounded-base shadow-shadow
+                       flex flex-col"
+          >
+            <div className="bg-main text-main-foreground border-b-2 border-border px-4 py-2 flex items-center justify-center">
+              <h2 className="text-base font-bold tracking-tight m-0">
+                {current.title}
+              </h2>
             </div>
-            <p
-              className="desc-box w-full px-3 py-2
-                         bg-secondary-background text-foreground
-                         border-2 border-border rounded-base shadow-shadow
-                         text-sm text-center leading-snug font-medium"
-            >
+            <p className="desc-box w-full min-w-0 px-3 py-2 text-sm font-medium text-neutral-700 m-0">
               {current.description}
             </p>
-          </div>
-
-          <div className="shrink-0 mt-3 h-6 flex justify-center items-center gap-2 flex-wrap max-w-full px-1">
-            {avatars.map((avatar, i) => (
-              <button
-                key={avatar.src}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Go to ${avatar.title}`}
-                aria-current={i === index ? 'true' : undefined}
-                className="touch-manipulation p-1"
-              >
-                <span
-                  className={`block h-2.5 rounded-base border-2 border-border ${
-                    i === index
-                      ? 'w-6 bg-main'
-                      : 'w-2.5 bg-secondary-background hover:bg-main/30'
-                  }`}
-                />
-              </button>
-            ))}
           </div>
         </div>
 
@@ -268,15 +282,6 @@ export default function App() {
           <Chevron dir="right" />
         </NeoButton>
       </div>
-
-      {/* Counter desktop */}
-      <p
-        className="hidden sm:flex shrink-0 h-8 items-center text-sm font-base tabular-nums
-                   px-3 bg-secondary-background
-                   border-2 border-border rounded-base shadow-shadow"
-      >
-        {index + 1} / {avatars.length}
-      </p>
 
       {/* —— Mobile: fixed image size, fixed footer —— */}
       <div
@@ -327,53 +332,21 @@ export default function App() {
           </div>
         </div>
 
-        {/* Fixed-height footer so image never shifts */}
-        <div className="shrink-0 w-full max-w-sm px-3 pt-2 pb-2 h-[7.75rem] flex flex-col items-center gap-2 bg-background">
-          <div className="flex items-center justify-center gap-2 h-8">
-            <span
-              className="px-3 py-1
-                         bg-main text-main-foreground
-                         border-2 border-border rounded-base shadow-shadow
-                         text-sm font-bold tracking-tight"
-            >
-              {current.title}
-            </span>
-            <span
-              className="px-2 py-1 text-xs tabular-nums font-medium
-                         bg-secondary-background text-foreground
-                         border-2 border-border rounded-base shadow-shadow"
-            >
-              {index + 1}/{avatars.length}
-            </span>
-          </div>
-          <p
-            className="desc-box w-full px-3 py-2
-                       bg-secondary-background text-foreground
-                       border-2 border-border rounded-base shadow-shadow
-                       text-sm text-center leading-snug font-medium"
+        {/* Fixed-height footer: info card only */}
+        <div className="shrink-0 w-full max-w-sm px-3 pt-2 pb-2 flex flex-col items-center bg-background">
+          <div
+            className="w-full min-w-0 overflow-hidden
+                       bg-secondary-background border-2 border-border rounded-base shadow-shadow
+                       flex flex-col"
           >
-            {current.description}
-          </p>
-
-          <div className="h-5 flex justify-center items-center gap-1.5">
-            {avatars.map((avatar, i) => (
-              <button
-                key={avatar.src}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Go to ${avatar.title}`}
-                aria-current={i === index ? 'true' : undefined}
-                className="touch-manipulation p-1"
-              >
-                <span
-                  className={`block rounded-full transition-none ${
-                    i === index
-                      ? 'h-1.5 w-5 bg-main'
-                      : 'h-1.5 w-1.5 bg-neutral-300'
-                  }`}
-                />
-              </button>
-            ))}
+            <div className="bg-main text-main-foreground border-b-2 border-border px-3 py-1.5 flex items-center justify-center">
+              <h2 className="text-sm font-bold tracking-tight m-0">
+                {current.title}
+              </h2>
+            </div>
+            <p className="desc-box w-full min-w-0 px-2.5 py-1.5 font-medium text-neutral-700 m-0">
+              {current.description}
+            </p>
           </div>
         </div>
       </div>
@@ -405,20 +378,17 @@ export default function App() {
               />
             </div>
 
-            <div className="flex flex-col items-center gap-2 max-w-sm w-full px-2">
-              <div
-                className="px-4 py-1.5 bg-main text-main-foreground
-                           border-2 border-border rounded-base shadow-shadow
-                           text-base font-bold tracking-tight"
-              >
-                {current.title}
+            <div
+              className="max-w-sm w-full overflow-hidden
+                         bg-secondary-background border-2 border-border rounded-base shadow-shadow
+                         flex flex-col"
+            >
+              <div className="bg-main text-main-foreground border-b-2 border-border px-4 py-2 flex items-center justify-center">
+                <h2 className="text-base font-bold tracking-tight m-0">
+                  {current.title}
+                </h2>
               </div>
-              <p
-                className="w-full px-3 py-2
-                           bg-secondary-background text-foreground
-                           border-2 border-border rounded-base shadow-shadow
-                           text-sm text-center leading-snug font-medium"
-              >
+              <p className="desc-box w-full min-w-0 px-3 py-2 text-sm font-medium text-neutral-700 m-0">
                 {current.description}
               </p>
             </div>
@@ -444,6 +414,9 @@ export default function App() {
           </div>
         </div>
       )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
