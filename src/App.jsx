@@ -190,17 +190,18 @@ export default function App() {
         <NeoButton
           onClick={prev}
           aria-label="Previous avatar"
-          className="shrink-0 size-12"
+          className="shrink-0 size-12 self-center"
         >
           <Chevron dir="left" />
         </NeoButton>
 
         <div
-          className="relative flex-1 min-w-0 max-w-xl min-h-0 h-full flex flex-col items-center justify-center"
+          className="relative flex flex-col items-center justify-start min-h-0"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          <div className="avatar-slot relative min-h-0 flex-1 w-full">
+          {/* Image size locked via CSS — does not reflow with text */}
+          <div className="avatar-slot shrink-0">
             <button
               type="button"
               onClick={openExpanded}
@@ -218,9 +219,9 @@ export default function App() {
             </button>
           </div>
 
-          <div className="shrink-0 mt-3 flex flex-col items-center gap-2 max-w-md w-full px-2">
+          <div className="shrink-0 mt-3 flex flex-col items-center gap-2 w-full max-w-[22rem] px-1">
             <div
-              className="px-4 py-1
+              className="px-4 py-1 h-8 flex items-center
                          bg-main text-main-foreground
                          border-2 border-border rounded-base shadow-shadow
                          text-base font-bold tracking-tight"
@@ -228,7 +229,7 @@ export default function App() {
               {current.title}
             </div>
             <p
-              className="w-full px-3 py-2
+              className="desc-box w-full px-3 py-2
                          bg-secondary-background text-foreground
                          border-2 border-border rounded-base shadow-shadow
                          text-sm text-center leading-snug font-medium"
@@ -237,7 +238,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="shrink-0 mt-3 flex justify-center items-center gap-2 flex-wrap max-w-full px-1">
+          <div className="shrink-0 mt-3 h-6 flex justify-center items-center gap-2 flex-wrap max-w-full px-1">
             {avatars.map((avatar, i) => (
               <button
                 key={avatar.src}
@@ -262,7 +263,7 @@ export default function App() {
         <NeoButton
           onClick={next}
           aria-label="Next avatar"
-          className="shrink-0 size-12"
+          className="shrink-0 size-12 self-center"
         >
           <Chevron dir="right" />
         </NeoButton>
@@ -270,20 +271,20 @@ export default function App() {
 
       {/* Counter desktop */}
       <p
-        className="hidden sm:block shrink-0 text-sm font-base tabular-nums
-                   px-3 py-1 bg-secondary-background
+        className="hidden sm:flex shrink-0 h-8 items-center text-sm font-base tabular-nums
+                   px-3 bg-secondary-background
                    border-2 border-border rounded-base shadow-shadow"
       >
         {index + 1} / {avatars.length}
       </p>
 
-      {/* —— Mobile: full-width image, overlay arrows, clean footer —— */}
+      {/* —— Mobile: fixed image size, fixed footer —— */}
       <div
         className="sm:hidden flex flex-col items-center w-full min-h-0 flex-1"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="avatar-slot relative min-h-0 flex-1 w-full">
+        <div className="avatar-slot shrink-0">
           <div className="relative">
             <button
               type="button"
@@ -301,7 +302,6 @@ export default function App() {
               />
             </button>
 
-            {/* Overlay arrows on the photo — full width for image */}
             <button
               type="button"
               onClick={prev}
@@ -327,9 +327,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* Mobile chrome — neo title + description */}
-        <div className="shrink-0 w-full max-w-sm px-3 pt-2 pb-2 flex flex-col items-center gap-2 bg-background">
-          <div className="flex items-center justify-center gap-2">
+        {/* Fixed-height footer so image never shifts */}
+        <div className="shrink-0 w-full max-w-sm px-3 pt-2 pb-2 h-[7.75rem] flex flex-col items-center gap-2 bg-background">
+          <div className="flex items-center justify-center gap-2 h-8">
             <span
               className="px-3 py-1
                          bg-main text-main-foreground
@@ -347,7 +347,7 @@ export default function App() {
             </span>
           </div>
           <p
-            className="w-full px-3 py-2
+            className="desc-box w-full px-3 py-2
                        bg-secondary-background text-foreground
                        border-2 border-border rounded-base shadow-shadow
                        text-sm text-center leading-snug font-medium"
@@ -355,7 +355,7 @@ export default function App() {
             {current.description}
           </p>
 
-          <div className="flex justify-center items-center gap-1.5">
+          <div className="h-5 flex justify-center items-center gap-1.5">
             {avatars.map((avatar, i) => (
               <button
                 key={avatar.src}

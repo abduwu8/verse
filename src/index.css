@@ -73,49 +73,49 @@ body,
 }
 
 /*
-  Largest 3:4 box inside the slot — full photo, no side crop.
-  Image is slightly taller than the frame so only the bottom (watermark) clips.
+  Fixed-size portrait frame — size is locked so description text
+  length never moves or resizes the image.
 */
 .avatar-slot {
   display: flex;
   align-items: center;
   justify-content: center;
-  container-type: size;
   width: 100%;
   min-height: 0;
+  flex: 1 1 auto;
 }
 
 .avatar-frame {
   position: relative;
   overflow: hidden;
   aspect-ratio: 3 / 4;
-  /* Prefer filling available height; fall back to width on narrow slots */
-  width: min(100cqw, calc(100cqh * 3 / 4));
-  height: min(100cqh, calc(100cqw * 4 / 3));
+  flex-shrink: 0;
   appearance: none;
   -webkit-appearance: none;
   font: inherit;
   color: inherit;
+  /* Desktop: stable size from viewport (not footer content) */
+  --chrome: 13rem;
+  width: min(28rem, calc((100dvh - var(--chrome)) * 3 / 4), 90vw);
+  height: min(calc(100dvh - var(--chrome)), calc(min(28rem, 90vw) * 4 / 3));
 }
 
-/* Mobile: full-width photo, leave room for title + description + dots */
+/* Mobile: fixed viewport-based size; footer reserved below */
 @media (max-width: 639px) {
   .avatar-frame {
-    /* Cap height so footer text is never pushed off-screen */
-    width: min(100cqw, calc((100cqh - 0px) * 3 / 4));
-    height: min(100cqh, calc(100cqw * 4 / 3));
-    max-height: 100%;
+    --chrome: 16.5rem; /* logo + title + description + dots */
+    width: min(96vw, calc((100dvh - var(--chrome)) * 3 / 4));
+    height: min(calc(100dvh - var(--chrome)), calc(96vw * 4 / 3));
     box-shadow: 3px 3px 0 0 var(--border);
   }
 }
 
-@supports not (width: 1cqw) {
-  .avatar-frame {
-    width: auto;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-  }
+/* Fixed-height description box so 1-line vs 2-line text doesn't reflow */
+.desc-box {
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-img {
